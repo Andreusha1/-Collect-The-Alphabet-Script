@@ -2847,7 +2847,6 @@ function module.AutoOpenPacks()
 							openpromt.HoldDuration = 0
 							pcall(function()
 								fireproximityprompt(openpromt)
-								player.Character.HumanoidRootPart.CFrame = g
 								end)
 							end
 						end
