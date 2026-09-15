@@ -438,7 +438,7 @@ G2L["35"]["TextColor3"] = Color3.fromRGB(75, 75, 75);
 G2L["35"]["BackgroundTransparency"] = 1;
 G2L["35"]["Size"] = UDim2.new(0.66886, 0, 0.05341, 0);
 G2L["35"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["35"]["Text"] = [[UPDATE 1.2.0]];
+G2L["35"]["Text"] = [[UPDATE 1.2.1]];
 G2L["35"]["Position"] = UDim2.new(0.16496, 0, 0.94511, 0);
 
 
@@ -3021,11 +3021,15 @@ function module.AutoRarityUpgrade()
 		running = false
 	end
 end
+local module = {}
+
 function module.AutoShopBuy(selected)
+	if type(selected) ~= "table" then return end
 	local player = game.Players.LocalPlayer
-	local mo = player.Money
-	local Event = game:GetService("ReplicatedStorage").SpecialShopRemotes
 	local holder = player.PlayerGui.MainGui.Frames.ShopStand.ShopScrollingFrame.Holder
+	local mo = player.Money
+	local di = player.Diamonds
+	local Event = game:GetService("ReplicatedStorage").SpecialShopRemotes
 	local values = {
 		K = 1e3,M = 1e6,B = 1e9,T = 1e12,Qa = 1e15,Qi = 1e18,Sx = 1e21,Sp = 1e24,Oc = 1e27,No = 1e30,Dc = 1e33,Ud = 1e36,Dd = 1e39,Td = 1e42,Qad = 1e45,Qid = 1e48,Sxd = 1e51,Spd = 1e54,Ocd = 1e57,Nod = 1e60
 	}
@@ -3035,37 +3039,67 @@ function module.AutoShopBuy(selected)
 			for name,_ in pairs(selected) do
 				local item = holder:FindFirstChild(name)
 				if item then
-					local price = item:FindFirstChild("ButtonName")
 					local stock = item:FindFirstChild("StockLabel")
-					if price and stock then
-						local need = price.Text
-						local number = tonumber(need:match("[%d%.]+"))
-						local suffix = need:match("[A-Za-z]+$")
-						if number and suffix then
-							number *= values[suffix] or 1
-						end
+					if stock then
 						local stockcount = tonumber(stock.Text:match("%d+"))
-						if number and stockcount and stockcount > 0 and mo.Value >= number then
-							if name == "CommonSpecialPack" or name == "RareSpecialPack" or name == "LegendarySpecialPack" or name == "NumbersPack" then
-								pcall(function()
-									Event.BuySpecialPack:FireServer(name)
-								end)
-							elseif name == "OpeningLuck" or name == "MutationLuck" then
-								pcall(function()
-									Event.BuyPotion:FireServer(name)
-								end)
+						if stockcount and stockcount > 0 then
+							if name == "CommonSpecialPack" or name == "RareSpecialPack" or name == "LegendarySpecialPack" then
+								local diamonds = item:FindFirstChild("Diamonds")
+								if diamonds then
+									local buttonname = diamonds:FindFirstChild("ButtonName")
+									if buttonname then
+										local priceText = buttonname.Text
+										if not priceText:lower():find("no stock") then
+											local number = tonumber(priceText:match("[%d%.]+"))
+											local suffix = priceText:match("[A-Za-z]+$")
+											if number and suffix then
+												number *= values[suffix] or 1
+											end
+											if number and di.Value >= number then
+												pcall(function()
+													Event.BuySpecialPack:FireServer(name)
+												end)
+											end
+										end
+									end
+								end
+							elseif name == "NumbersPack" or name == "OpeningLuck" or name == "MutationLuck" then
+								local moneybtn = item:FindFirstChild("MoneyBtn")
+								if moneybtn then
+									local buttonname = moneybtn:FindFirstChild("ButtonName")
+									if buttonname then
+										local priceText = buttonname.Text
+										if not priceText:lower():find("no stock") then
+											local number = tonumber(priceText:match("[%d%.]+"))
+											local suffix = priceText:match("[A-Za-z]+$")
+											if number and suffix then
+												number *= values[suffix] or 1
+											end
+											if number and mo.Value >= number then
+												pcall(function()
+													if name == "NumbersPack" then
+														Event.BuySpecialPack:FireServer(name)
+													else
+														Event.BuyPotion:FireServer(name)
+													end
+												end)
+											end
+										end
+									end
+								end
 							end
 						end
 					end
 				end
 			end
-			task.wait()
+			task.wait(0.2)
 		end
 	end)
 	return function()
 		running = false
 	end
 end
+
 return module
 end;
 };
@@ -3780,7 +3814,7 @@ local script = G2L["f0"];
 	local stop
 	button.BackgroundColor3 = Color3.fromRGB(42,42,42)
 	button.Text = "Off"
-	local module = require(script.Parent.Parent.Parent.ModuleScript)
+	local module = require(script.Parent.Parent.Parent.Parent.ModuleScript)
 	button.MouseButton1Click:Connect(function()
 		if not on then
 			if next(selected) == nil then
