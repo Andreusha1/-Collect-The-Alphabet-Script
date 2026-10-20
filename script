@@ -2629,7 +2629,7 @@ G2L["148"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json
 G2L["148"]["Size"] = UDim2.new(0.87751, 0, 0.12295, 0);
 G2L["148"]["Position"] = UDim2.new(0.06216, 0, 0.79523, 0);
 G2L["148"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["148"]["Text"] = [[https://discord.gg/NWyfNUzTF]];
+G2L["148"]["Text"] = [[https://discord.gg/dn85ZZ3y7c]];
 
 
 -- StarterGui.onrusha1.code.ds.LocalScript
